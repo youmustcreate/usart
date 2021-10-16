@@ -37,13 +37,10 @@ wire                                    clk_200M                   ;
     .sys_rst                           (sys_rst                   ),
     .uart_rxd                          (uart_rxd                  ),
     .uart_txd                          (uart_txd                  ),
-
     .Adress                            (Adress                    ),
     .Mod_SEL                           (Mod_SEL                   ),
     .D                                 (D                         ),
     .TRP                               (TRP                       ) 
             );
-
-
-
+            
 endmodule

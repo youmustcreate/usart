@@ -5,8 +5,8 @@ module delay(
 
 reg                    [31:0]           count = 0                  ;
 
-  always @(posedge sys_clk) begin                                   //100M 10ns
-    if(count == 32'd10) begin                                       //达到100ns之后不再继续count++   之前是1s
+  always @(posedge sys_clk) begin                                   //20ns
+    if(count == 32'd50000000) begin                                 //达到1s之后不再继续count++
       en <= 1;
       RST<=0;
     end

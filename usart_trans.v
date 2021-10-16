@@ -9,17 +9,19 @@ module usart_trans
     input              [ 5:0]           Mod_SEL                     
    );
 
-    parameter                           state0 = 4'd0              ;
-    parameter                           state1 = 4'd1              ;
-    parameter                           state2 = 4'd2              ;
-    parameter                           state3 = 4'd3              ;
-    parameter                           state4 = 4'd4              ;
-    parameter                           state5 = 4'd5              ;
-    parameter                           state6 = 4'd6              ;
-    parameter                           state7 = 4'd7              ;
 
 localparam                              TX_NUM = 8'd7              ;
 localparam                              N = 6000                   ;//传输一个字节所需要的时间 10*(50M/115200)和波特率有关
+
+localparam                              state0 = 4'd0              ;
+localparam                              state1 = 4'd1              ;
+localparam                              state2 = 4'd2              ;
+localparam                              state3 = 4'd3              ;
+localparam                              state4 = 4'd4              ;
+localparam                              state5 = 4'd5              ;
+localparam                              state6 = 4'd6              ;
+localparam                              state7 = 4'd7              ;
+
 
 
 wire                                    TX_INT                     ;
@@ -31,13 +33,15 @@ reg                    [ 7:0]           tx_data_T                  ;
 
 reg                    [ 7:0]           TXdatacount                ;
 reg                    [ 7:0]           TRP_REG                    ;
-reg                    [ 7:0]                                      ;
-reg                    [ 7:0]                                      ;
+reg                    [ 7:0]           TX_REG[TX_NUM:1]           ;
+reg                    [ 7:0]           data_tx[TX_NUM:1]          ;
 
 reg                    [15:0]           count                      ;
 reg                    [ 3:0]           state,next_state,flag      ;
-  //-------------------------------
-  assign TX_INT = TX_INT_T,tx_data = tx_data_T;
+
+assign TX_INT  = TX_INT_T;
+assign tx_data = tx_data_T;
+
 
   uart_send  #(.BPS_CNT(BPS_CNT))
              u_uart_send(
@@ -48,13 +52,17 @@ reg                    [ 3:0]           state,next_state,flag      ;
     .uart_txd                          (uart_txd                  ) 
              );
 
-  //------------------------------
+
+
   always @ (posedge sys_clk or negedge sys_rst) begin
     if(!sys_rst)
       TRP_REG <= 8'd0;
     else
       TRP_REG    <= {TRP_REG[6:0],trig};                            //检测到触发信号
   end
+
+
+
 
   //----------------TRANSMIT--------------
   always @ (posedge sys_clk or negedge sys_rst) begin               //计数器
@@ -94,6 +102,8 @@ reg                    [ 3:0]           state,next_state,flag      ;
       endcase
     end
   end
+
+
 
   always @ (posedge sys_clk or negedge sys_rst) begin               //状态切换
     if(!sys_rst) begin
@@ -147,6 +157,9 @@ reg                    [ 3:0]           state,next_state,flag      ;
       endcase
     end
   end
+
+
+
 
   always @ (posedge sys_clk or negedge sys_rst)                     //串口发送
   begin
