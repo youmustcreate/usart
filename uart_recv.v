@@ -60,6 +60,7 @@ wire                                    start_flag                 ;
     end
 
     else if ( rx_flag ) begin                                       //处于接收过程
+      //clk_cnt 计数到 433
       if (clk_cnt < BPS_CNT - 1) begin
         clk_cnt <= clk_cnt + 1'b1;
         rx_cnt  <= rx_cnt;
