@@ -4,7 +4,7 @@ module uart_recv
     input                               sys_clk                    ,//系统时钟50Mhz
     input                               sys_rst_n                  ,//系统复位，低电平有效
     input                               uart_rxd                   ,//UART接收端口
-    output reg                          rx_byte_done                  ,//接收一个字节完成标志信号
+    output reg                          rx_byte_done               ,//接收一个字节完成标志信号
     output reg         [ 7:0]           rx_data                     //接收的一个字节数据
    );
 
@@ -45,7 +45,7 @@ wire                                    start_flag                 ;
       if(start_flag)                                                //检测到起始位
         rx_flag <= 1'b1;                                            //进入接收过程，标志位rx_flag拉高
       
-      else if((rx_cnt == 4'd9)&&(clk_cnt == BPS_CNT/2))     //clk_cnt==217
+      else if((rx_cnt == 4'd9)&&(clk_cnt == BPS_CNT/2))             //clk_cnt==217
         rx_flag <= 1'b0;                                            //计数到停止位中间时，停止接收过程
       else
         rx_flag <= rx_flag;
@@ -114,17 +114,17 @@ wire                                    start_flag                 ;
   //数据接收完毕后给出标志信号并寄存输出接收到的数据
   always @(posedge sys_clk or negedge sys_rst_n) begin
     if (!sys_rst_n) begin
-      rx_data   <= 8'd0;
+      rx_data      <= 8'd0;
       rx_byte_done <= 0;
     end
 
     else if(rx_cnt == 4'd9) begin                                   //接收数据计数器计数到停止位时
-      rx_data   <= rx_data_t;                                          //寄存输出接收到的数据
+      rx_data      <= rx_data_t;                                    //寄存输出接收到的数据
       rx_byte_done <= 1;                                            //并将接收完成标志位拉高
     end
     
     else begin
-      rx_data   <= 8'd0;
+      rx_data      <= 8'd0;
       rx_byte_done <= 0;
     end
   end
