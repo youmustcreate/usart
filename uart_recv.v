@@ -8,7 +8,6 @@ module uart_recv
     output reg         [ 7:0]           uart_data                   //接收的数据
    );
 
-
 reg                                     uart_rxd_d0                ;
 reg                                     uart_rxd_d1                ;
 reg                    [15:0]           clk_cnt                    ;//系统时钟计数器
