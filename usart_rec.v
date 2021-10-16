@@ -10,14 +10,14 @@ module usart_rec
      output                              TRP
    );
 
-wire                                    RX_INT                     ;
-wire                   [ 7:0]           rx_data                    ;
+wire                                    rx_byte_done               ;
+wire                   [ 7:0]           rx_data                    ;//一个字节的数据
 wire                                    sys_rst_n                  ;//串口模块内部低电平有效
 reg                    [ 7:0]           RXdatacount                ;
 reg                    [ 7:0]           RX_REG[RX_NUM:1]           ;
 reg                    [ 7:0]           RX_REGT[RX_NUM:1]          ;
 
-reg                    [ 3:0]           RX_INT_T                   ;
+reg                    [ 3:0]           rx_byte_done_t             ;
 reg                    [ 7:0]           LET                        ;
 reg                                     LE                         ;
 reg                                     R                          ;
@@ -33,19 +33,19 @@ uart_recv   #(.BPS_CNT(BPS_CNT))
     .sys_clk                           (sys_clk                   ),
     .sys_rst_n                         (sys_rst                   ),
     .uart_rxd                          (uart_rxd                  ),
-    .uart_done                         (RX_INT                    ),
-    .uart_data                         (rx_data                   ) 
+    .rx_byte_done                      (rx_byte_done              ),
+    .rx_data                           (rx_data                   ) //一个字节
             );
 
 //------------------------------------------------------------------------
 always @ (posedge sys_clk or negedge sys_rst) begin
   if(!sys_rst) begin
-    RX_INT_T <= 4'd0;
-    LET         <= 8'd0;
+    rx_byte_done_t <= 4'd0;
+    LET            <= 8'd0;
   end
   else begin
-    RX_INT_T   <= {RX_INT_T[2:0],RX_INT};
-    LET        <= {LET[6:0],LE};                                    //控制指令检测
+    rx_byte_done_t   <= {rx_byte_done_t[2:0],rx_byte_done};
+    LET              <= {LET[6:0],LE};                                    //控制指令检测
   end
 end
 
@@ -63,7 +63,7 @@ always @ (posedge sys_clk or negedge sys_rst) begin
   end
 
   else begin
-    if(RX_INT_T [1:0] == 2'b01)               //posedge
+    if(rx_byte_done_t [1:0] == 2'b01)               //posedge
     begin
       RX_REGT[RXdatacount + 1] <= rx_data;
       RXdatacount <= RXdatacount + 1;
