@@ -37,7 +37,7 @@ wire                                    start_flag                 ;
 //----------------------------------------------------------------------------------------------
 
   //当脉冲信号start_flag到达时，进入接收过程
-  always @(posedge sys_clk or negedge sys_rst_n) begin     //20ns
+  always @(posedge sys_clk or negedge sys_rst_n) begin     
     if (!sys_rst_n)
       rx_flag <= 1'b0;
     
@@ -45,7 +45,7 @@ wire                                    start_flag                 ;
       if(start_flag)                                                //检测到起始位
         rx_flag <= 1'b1;                                            //进入接收过程，标志位rx_flag拉高
       
-      else if((rx_cnt == 4'd9)&&(clk_cnt == BPS_CNT/2))             //clk_cnt==217
+      else if((rx_cnt == 4'd9)&&(clk_cnt == BPS_CNT/2 - 2))         //clk_cnt==217
         rx_flag <= 1'b0;                                            //计数到停止位中间时，停止接收过程
       else
         rx_flag <= rx_flag;
@@ -67,7 +67,8 @@ wire                                    start_flag                 ;
       
       else begin
         clk_cnt <= 16'd0;                                           //对系统时钟计数达一个波特率周期后清零
-        rx_cnt  <= rx_cnt + 1'b1;                                   //此时接收数据计数器加1
+        //rx_cnt 接收完一个二进制位 加一
+        rx_cnt  <= rx_cnt + 1'b1;       
       end
     end
 
