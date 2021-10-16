@@ -48,10 +48,9 @@ always @ (posedge sys_clk or negedge sys_rst) begin
     LET        <= {LET[6:0],LE};                                    //控制指令检测
   end
 end
+
 assign trig = LET[2];                                               //延迟一个更新脉冲输出
-
-
-
+assign TRP  = LET[6];                                               //数据更新后50ns产生外触发信号，200ns保持时间
 
 
 //------------------------RECEIVE----------------------------------------------
@@ -169,7 +168,5 @@ begin
     up_date <= {up_date[14:0],trig};
   end
 end
-
-assign TRP = LET[6];                                                //数据更新后50ns产生外触发信号，200ns保持时间
 
 endmodule
