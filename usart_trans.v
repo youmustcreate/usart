@@ -9,20 +9,13 @@ module usart_trans
     input              [ 5:0]           Mod_SEL                     
    );
 
-
-localparam                              TX_NUM = 8'd7              ;
+localparam                              TX_NUM = 8'd7              ;//回传数据字节总数
 localparam                              N = 6000                   ;//传输一个字节所需要的时间 10*(50M/115200)和波特率有关
 
-localparam                              state0 = 4'd0              ;
 localparam                              state1 = 4'd1              ;
 localparam                              state2 = 4'd2              ;
 localparam                              state3 = 4'd3              ;
 localparam                              state4 = 4'd4              ;
-localparam                              state5 = 4'd5              ;
-localparam                              state6 = 4'd6              ;
-localparam                              state7 = 4'd7              ;
-
-
 
 wire                                    TX_INT                     ;
 wire                   [ 7:0]           tx_data                    ;
@@ -53,50 +46,51 @@ assign tx_data = tx_data_T;
              );
 
 
-
+//检测数据接收完毕 给出的回传触发信号 trig
   always @ (posedge sys_clk or negedge sys_rst) begin
     if(!sys_rst)
       TRP_REG <= 8'd0;
     else
-      TRP_REG    <= {TRP_REG[6:0],trig};                            //检测到触发信号
+      TRP_REG    <= {TRP_REG[6:0],trig};                            
   end
 
 
 
 
-  //----------------TRANSMIT--------------
-  always @ (posedge sys_clk or negedge sys_rst) begin               //计数器
+  //----------------TRANSMIT计数器--------------
+  always @ (posedge sys_clk or negedge sys_rst) begin               
     if(!sys_rst)
       count <= 0;
+
     else begin
       case(flag)
-        0: begin
+        0: 
           count <= 0;
-        end
+        
         1: begin
           count <= count + 1;
-          if(count == 4)        begin
+          if(count == 4)
             count <= 0;
-          end
         end
+        
         2: begin
           count <= count + 1;
-          if(count == 2*N)      begin
+          if(count == 2*N)
             count <= 0;
-          end
         end
+        
         3: begin
           count <= count + 1;
-          if(count == 2*N)      begin
+          if(count == 2*N)
             count <= 0;
-          end
         end
+
         4: begin
           count <= count + 1;
-          if(count == 10_000)   begin
-            count <= 0;
-          end                                                       //50ns
+          if(count == 10_000)
+            count <= 0;//50ns
         end
+
         default:
           ;
       endcase
@@ -104,35 +98,35 @@ assign tx_data = tx_data_T;
   end
 
 
-
-  always @ (posedge sys_clk or negedge sys_rst) begin               //状态切换
+//--------------------状态切换----------------------------------
+  always @ (posedge sys_clk or negedge sys_rst) begin
     if(!sys_rst) begin
-      state   <= state0;
+      state   <= state1;
       flag    <=  8'd0;
     end
+    
     else begin
       case(state)
-        state0: begin
-          state <= state1;
-          flag <= 8'd0;
-        end
         state1: begin
-          if(TRP_REG[1:0] == 2'b01)                                 //必须数上变频模式下的触发才回传
-          begin
+          //检测到上升沿触发就开始回传
+          if(TRP_REG[1:0] == 2'b01) begin                                 
             state <= state2;
             flag <= 8'd1;
           end
+
           else begin
             state <= state1;
             flag <= 8'd0;
           end
         end
+
         state2: begin
           if(count == 4) begin
             state <= state3;
             flag <= 8'd2;
           end
         end
+        
         state3: begin
           if(count == 2*N)                                          //这里预留了2倍的接收时间
           begin
@@ -140,18 +134,19 @@ assign tx_data = tx_data_T;
               state    <= state3;
               flag     <=  8'd2;
             end
+
             else begin
               state    <= state4;
               flag     <=  8'd0 ;
             end
           end
         end
+
         state4: begin
-          //if(count == 100000)
-          //	begin state <= state1;flag <= 0;end
           state <= state1;
           flag <= 0;
         end
+        
         default:
           ;
       endcase
@@ -160,20 +155,17 @@ assign tx_data = tx_data_T;
 
 
 
-
+//----------------------按字节发送模块--------------------
   always @ (posedge sys_clk or negedge sys_rst)                     //串口发送
   begin
     if(!sys_rst) begin
-      TXdatacount        <= 0;
+      TXdatacount          <= 0;
       TX_INT_T             <= 0;
-      tx_data_T             <= 8'h00;
+      tx_data_T            <= 8'h00;
     end
+
     else begin
       case(state)
-        state0: begin
-          TXdatacount <= 0;
-          TX_INT_T <= 0;
-        end
         state1: begin
           TXdatacount <= 0;
           TX_INT_T <= 0;
@@ -183,7 +175,7 @@ assign tx_data = tx_data_T;
           TX_REG[1] <= 8'hFF;
           TX_REG[2] <= Adress;
           TX_REG[3] <= Mod_SEL;
-          TX_REG[4] <= D[23:16];
+          TX_REG[4] <= D[23:16]; //24位数据位
           TX_REG[5] <= D[15:8];
           TX_REG[6] <= D[7:0];
           TX_REG[7] <= 8'hAA;

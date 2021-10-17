@@ -38,14 +38,17 @@ wire                                    en_flag                    ;
       tx_flag <= 1'b0;
       tx_data <= 8'd0;
     end
+
     else if (en_flag) begin                                         //检测到发送使能上升沿
       tx_flag <= 1'b1;                                              //进入发送过程，标志位tx_flag拉高
       tx_data <= uart_din;                                          //寄存待发送的数据
     end
+    
     else if ((tx_cnt == 4'd9)&&(clk_cnt == BPS_CNT/2)) begin        //计数到停止位中间时，停止发送过程
       tx_flag <= 1'b0;                                              //发送过程结束，标志位tx_flag拉低
       tx_data <= 8'd0;
     end
+    
     else begin
       tx_flag <= tx_flag;
       tx_data <= tx_data;
@@ -80,7 +83,7 @@ wire                                    en_flag                    ;
   //根据发送数据计数器来给uart发送端口赋值
   always @(posedge sys_clk or negedge sys_rst_n) begin
     if (!sys_rst_n)
-      uart_txd <= 1'b1;
+      uart_txd <= 1;
     
     else if (tx_flag)
     case(tx_cnt)
@@ -109,7 +112,7 @@ wire                                    en_flag                    ;
     endcase
     
     else
-      uart_txd <= 1'b1;                                             //空闲时发送端口为高电平
+      uart_txd <= 1;                                             //空闲时发送端口为高电平
   end
 
 endmodule
