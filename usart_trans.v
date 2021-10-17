@@ -13,9 +13,9 @@ localparam                              TX_NUM = 8'd5              ;//回传数�
 localparam                              N = 6000                   ;//传输一个字节所需要的时间 10*(50M/115200)和波特率有关
 
 localparam                              state0 = 4'd0              ;
-localparam                              state0 = 4'd1              ;
-localparam                              state1 = 4'd2              ;
-localparam                              state2 = 4'd3              ;
+localparam                              state1 = 4'd1              ;
+localparam                              state2 = 4'd2              ;
+localparam                              state3 = 4'd3              ;
 
 wire                                    tx_byte_en                 ;
 wire                   [ 7:0]           tx_byte                    ;
@@ -32,8 +32,8 @@ reg                    [ 7:0]           data_tx[TX_NUM:1]          ;
 reg                    [15:0]           count                      ;
 reg                    [ 3:0]           state,flag                 ;
 
-assign tx_byte_en  = tx_byte_en_T;
-assign tx_byte     = tx_byte_T;
+assign tx_byte_en    =  tx_byte_en_T;
+assign tx_byte[7:0]  =  tx_byte_T[7:0];
 
   uart_send  #(.BPS_CNT(BPS_CNT))
              u_uart_send(
@@ -66,11 +66,6 @@ assign tx_byte     = tx_byte_T;
           if(TRP_REG[1:0] == 2'b01) begin                                 
             state <= state1;
             flag  <= 8'd1;
-          end
-
-          else begin
-            state <= state0;
-            flag  <= 8'd0;
           end
         end
 
