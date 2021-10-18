@@ -30,7 +30,8 @@ reg                    [ 7:0]           TX_REG[TX_NUM:1]           ;
 reg                    [ 7:0]           data_tx[TX_NUM:1]          ;
 
 reg                    [15:0]           count                      ;
-reg                    [ 3:0]           state,flag                 ;
+reg                    [ 3:0]           state                      ;
+reg                    [ 3:0]           count_flag                 ;//计数方式标志位
 
 assign tx_byte_en    =  tx_byte_en_T;
 assign tx_byte[7:0]  =  tx_byte_T[7:0];
@@ -56,7 +57,7 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
   always @ (posedge sys_clk or negedge sys_rst) begin
     if(!sys_rst) begin
       state   <= state0;
-      flag    <=  8'd0;
+      count_flag    <=  8'd0;
     end
     
     else begin
@@ -65,14 +66,14 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
           //检测到上升沿触发就开始回传
           if(TRP_REG[1:0] == 2'b01) begin                                 
             state <= state1;
-            flag  <= 8'd1;
+            count_flag  <= 8'd1;
           end
         end
 
         state1: begin
           if(count == 4) begin
             state <= state2;
-            flag  <= 8'd2;
+            count_flag  <= 8'd2;
           end
         end
         
@@ -82,19 +83,19 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
           begin
             if(TXdatacount < TX_NUM) begin
               state    <= state2;
-              flag     <=  8'd2;
+              count_flag     <=  8'd2;
             end
 
             else begin
               state    <= state3;
-              flag     <=  8'd0 ;
+              count_flag     <=  8'd0 ;
             end
           end
         end
 
         state3: begin
           state <= state0;
-          flag <= 0;
+          count_flag <= 0;
         end
         
         default:
@@ -109,7 +110,7 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
       count <= 0;
 
     else begin
-      case(flag)
+      case(count_flag)
         0: 
           count <= 0;
         
