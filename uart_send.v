@@ -8,12 +8,12 @@ module uart_send
     output reg                          uart_txd                    //UART发送端口
    );
 
-reg                                     uart_en_d0                 ;
-reg                                     uart_en_d1                 ;
+reg                                     tx_byte_en0                ;
+reg                                     tx_byte_en1                ;
 reg                    [15:0]           clk_cnt                    ;//系统时钟计数器
 reg                    [ 3:0]           tx_cnt                     ;//发送数据计数器
 reg                                     tx_flag                    ;//发送过程标志信号
-reg                    [ 7:0]           tx_byte_T                    ;//寄存发送数据
+reg                    [ 7:0]           tx_byte_T                  ;//寄存发送数据
 
 wire                                    en_flag                    ;
 
