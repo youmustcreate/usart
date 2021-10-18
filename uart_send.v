@@ -44,7 +44,7 @@ wire                                    en_flag                    ;
       tx_byte_T <= tx_byte;                                          //寄存待发送的数据
     end
     
-    else if ((tx_cnt == 4'd9)&&(clk_cnt == BPS_CNT/2)) begin        //计数到停止位中间时，停止发送过程
+    else if ((tx_cnt == 4'd9)&&(clk_cnt == BPS_CNT/2)) begin        //计数到 停止位 中间时，停止发送过程
       tx_flag <= 1'b0;                                              //发送过程结束，标志位tx_flag拉低
       tx_byte_T <= 8'd0;
     end

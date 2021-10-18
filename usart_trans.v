@@ -77,8 +77,8 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
         end
         
         state2: begin
-          //这里预留了2倍的接收时间
-          if(count == 2*N)                                          
+          //这里只留了一倍的发送时间
+          if(count == N)                                          
           begin
             if(TXdatacount < TX_NUM) begin
               state    <= state2;
@@ -121,7 +121,8 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
         
         2: begin
           count <= count + 1;
-          if(count == 2*N)
+          //这里只留了一倍的发送时间
+          if(count == N)
             count <= 0;
         end
 
@@ -136,14 +137,14 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
   begin
     if(!sys_rst) begin
       TXdatacount          <= 0;
-      tx_byte_en_T             <= 0;
+      tx_byte_en_T         <= 0;
       tx_byte_T            <= 8'h00;
     end
 
     else begin
       case(state)
         state0: begin
-          TXdatacount <= 0;
+          TXdatacount  <= 0;
           tx_byte_en_T <= 0;
         end
 
@@ -158,22 +159,22 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
         state2: begin
           if(count == 1) begin
             tx_byte_en_T  <= 0;
-            tx_byte_T <= TX_REG[TXdatacount + 1];
+            tx_byte_T     <= TX_REG[TXdatacount + 1];
           end
 
           else if(count == 2) begin
-            tx_byte_en_T      <= 1;
+            tx_byte_en_T  <= 1;
             TXdatacount   <= TXdatacount + 1;
           end
 
           else if(count == 4) begin
-            tx_byte_en_T      <= 0;                                     //发送完成标志拉低
+            tx_byte_en_T  <= 0;                                     //发送完成标志拉低
           end
         end
 
         state3: begin
-          TXdatacount <= 0;
-          tx_byte_en_T <= 0;
+          TXdatacount   <= 0;
+          tx_byte_en_T  <= 0;
         end
         default:
           ;

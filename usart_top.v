@@ -8,8 +8,9 @@ module usart_top
     output             [ 5:0]           Mod_SEL                    ,
     output                              TRP                         
   );
-
-    parameter                           BPS_CNT = 16'd434          ;//50MHZ,115200bps
+//50MHZ,115200bps
+//多少个sys_clk时钟周期发送一个二进制位
+    parameter                           BPS_CNT = 16'd434          ;
 
 wire                                    trig                       ;//接收完毕给信号到发送模块
 
