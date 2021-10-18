@@ -20,14 +20,14 @@ localparam                              state3 = 4'd3              ;
 wire                                    tx_byte_en                 ;
 wire                   [ 7:0]           tx_byte                    ;
 wire                                    sys_rst_n                  ;
+wire                   [ 7:0]           TX_REG[TX_NUM:1]           ;
 
 reg                                     tx_byte_en_T               ;
 reg                    [ 7:0]           tx_byte_T                  ;
 
 reg                    [ 7:0]           TXdatacount                ;
 reg                    [ 7:0]           TRP_REG                    ;
-reg                    [ 7:0]           TX_REG[TX_NUM:1]           ;
-reg                    [ 7:0]           data_tx[TX_NUM:1]          ;
+
 
 reg                    [15:0]           count                      ;
 reg                    [ 3:0]           state                      ;
@@ -35,6 +35,13 @@ reg                    [ 3:0]           count_flag                 ;//计数方�
 
 assign tx_byte_en    =  tx_byte_en_T;
 assign tx_byte[7:0]  =  tx_byte_T[7:0];
+
+assign TX_REG[1]     =  Adress;
+assign TX_REG[2]     =  Mod_SEL;
+assign TX_REG[3]     =  D[23:16];
+assign TX_REG[4]     =  D[15:8];
+assign TX_REG[5]     =  D[7:0];
+
 
   uart_send  #(.BPS_CNT(BPS_CNT))
              u_uart_send(
@@ -56,8 +63,8 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
 //--------------------状态切换----------------------------------
   always @ (posedge sys_clk or negedge sys_rst) begin
     if(!sys_rst) begin
-      state   <= state0;
-      count_flag    <=  8'd0;
+      state       <= state0;
+      count_flag  <=  8'd0;
     end
     
     else begin
@@ -65,14 +72,14 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
         state0: begin
           //检测到上升沿触发就开始回传
           if(TRP_REG[1:0] == 2'b01) begin                                 
-            state <= state1;
+            state       <= state1;
             count_flag  <= 8'd1;
           end
         end
 
         state1: begin
           if(count == 4) begin
-            state <= state2;
+            state       <= state2;
             count_flag  <= 8'd2;
           end
         end
@@ -82,19 +89,19 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
           if(count == N)                                          
           begin
             if(TXdatacount < TX_NUM) begin
-              state    <= state2;
-              count_flag     <=  8'd2;
+              state       <= state2;
+              count_flag  <= 8'd2;
             end
 
             else begin
-              state    <= state3;
-              count_flag     <=  8'd0 ;
+              state       <= state3;
+              count_flag  <= 8'd0 ;
             end
           end
         end
 
         state3: begin
-          state <= state0;
+          state      <= state0;
           count_flag <= 0;
         end
         
@@ -150,11 +157,6 @@ assign tx_byte[7:0]  =  tx_byte_T[7:0];
         end
 
         state1: begin
-          TX_REG[1] <= Adress;
-          TX_REG[2] <= Mod_SEL;
-          TX_REG[3] <= D[23:16]; //24位数据位
-          TX_REG[4] <= D[15:8];
-          TX_REG[5] <= D[7:0];
         end
 
         state2: begin
