@@ -139,20 +139,20 @@ always @ (posedge sys_clk or negedge sys_rst) begin
       if(RX_REG[2][1:0] == 2'b00)                                   //频率控制
       begin
         Adress     <=  RX_REG[2][1:0];
-        Mod_SEL  <=  RX_REG[3][5:0];
-        D            <= {RX_REG[4],RX_REG[5],RX_REG[6]};
+        Mod_SEL    <=  RX_REG[3][5:0];
+        D          <= {RX_REG[4],RX_REG[5],RX_REG[6]};
       end
       else if(RX_REG[2][1:0] == 2'b01)                              //上变频控制
       begin
         Adress     <=  RX_REG[2][1:0];
-        Mod_SEL  <=  RX_REG[3][5:0];
-        D            <= {16'd0,RX_REG[7]};
+        Mod_SEL    <=  RX_REG[3][5:0];
+        D          <= {16'd0,RX_REG[7]};
       end
       else if(RX_REG[2][1:0] == 2'b10)                              //上变频控制
       begin
         Adress     <=  RX_REG[2][1:0];
-        Mod_SEL  <=  RX_REG[3][5:0];
-        D            <= {16'd0,RX_REG[8]};
+        Mod_SEL    <=  RX_REG[3][5:0];
+        D          <= {16'd0,RX_REG[8]};
       end
     end
   end
