@@ -15,7 +15,6 @@ localparam                              N = 6000                   ;//传输一�
 localparam                              state0 = 4'd0              ;
 localparam                              state1 = 4'd1              ;
 localparam                              state2 = 4'd2              ;
-localparam                              state3 = 4'd3              ;
 
 wire                                    tx_byte_en                 ;
 wire                   [ 7:0]           tx_byte                    ;
@@ -76,31 +75,24 @@ assign TX_REG[5]     =  D[7:0];
             count_flag  <= 8'd1;
           end
         end
-
-        state1: begin
-          if(count == 4) begin
-            state       <= state2;
-            count_flag  <= 8'd2;
-          end
-        end
         
-        state2: begin
+        state1: begin
           //这里只留了一倍的发送时间
           if(count == N)                                          
           begin
             if(TXdatacount < TX_NUM) begin
-              state       <= state2;
-              count_flag  <= 8'd2;
+              state       <= state1;
+              count_flag  <= 8'd1;
             end
 
             else begin
-              state       <= state3;
+              state       <= state2;
               count_flag  <= 8'd0 ;
             end
           end
         end
 
-        state3: begin
+        state2: begin
           state      <= state0;
           count_flag <= 0;
         end
@@ -122,12 +114,6 @@ assign TX_REG[5]     =  D[7:0];
           count <= 0;
         
         1: begin
-          count <= count + 1;
-          if(count == 4)
-            count <= 0;
-        end
-        
-        2: begin
           count <= count + 1;
           //这里只留了一倍的发送时间
           if(count == N)
@@ -156,26 +142,22 @@ assign TX_REG[5]     =  D[7:0];
           tx_byte_en_T <= 0;
         end
 
+        // state1: begin
+        // end
+
         state1: begin
-        end
-
-        state2: begin
           if(count == 1) begin
-            tx_byte_en_T  <= 0;
             tx_byte_T     <= TX_REG[TXdatacount + 1];
-          end
-
-          else if(count == 2) begin
             tx_byte_en_T  <= 1;
             TXdatacount   <= TXdatacount + 1;
           end
 
-          else if(count == 4) begin
+          else if(count == 3) begin 
             tx_byte_en_T  <= 0;                                     //发送完成标志拉低
           end
         end
 
-        state3: begin
+        state2: begin
           TXdatacount   <= 0;
           tx_byte_en_T  <= 0;
         end
