@@ -10,7 +10,7 @@ module usart_trans
    );
 
 localparam                              TX_NUM = 8'd5              ;//回传数据字节总数
-localparam                              N = 6000                   ;//传输一个字节所需要的时间 10*(50M/115200)和波特率有关
+localparam                              N = 10*BPS_CNT             ;//传输一个字节所需要的时间 10*(50M/115200)和波特率有关
 
 localparam                              state0 = 4'd0              ;
 localparam                              state1 = 4'd1              ;

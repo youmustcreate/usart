@@ -23,9 +23,9 @@ reg                                     LE                         ;
 reg                                     R                          ;
 reg                    [19:0]           count1                     ;//这里的位宽决定能计数到多少
 
-    parameter                           RX_NUM = 8'd9              ;
+localparam                              RX_NUM = 8'd9              ;
 //传输一个字节所需要的时间 10*(50M/115200)和波特率有关。等于10*BPS_CNT
-localparam                              N = 6000                   ;
+localparam                              N = 10*BPS_CNT             ;
 
   //------------------------------------------------------------------------
 uart_recv   #(.BPS_CNT(BPS_CNT))
