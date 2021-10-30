@@ -10,9 +10,9 @@ module usart_top
   );
 //50MHZ,115200bps
 //多少个sys_clk时钟周期发送一个二进制位
-    parameter                           BPS_CNT = 16'd434          ;
+parameter                               BPS_CNT = 16'd434          ;
 
-wire                                    trig                       ;//接收完毕给信号到发送模块
+wire                                    received_done              ;//接收完毕给信号到发送模块
 
   usart_rec #(.BPS_CNT(BPS_CNT))
             u_rec                                                   //主从串口握手控制, 接收模块
@@ -20,12 +20,12 @@ wire                                    trig                       ;//接收完�
     .sys_clk                           (sys_clk                   ),
     .sys_rst                           (sys_rst                   ),
     .uart_rxd                          (uart_rxd                  ),
-    .trig                              (trig                      ),
+    .received_done                     (received_done             ),
     .Adress                            (Adress                    ),
     .Mod_SEL                           (Mod_SEL                   ),
     .D                                 (D                         ),
     .TRP                               (TRP                       ) 
-            );
+);
 
   usart_trans #(.BPS_CNT(BPS_CNT))
               u_trans
@@ -33,11 +33,10 @@ wire                                    trig                       ;//接收完�
     .sys_clk                           (sys_clk                   ),
     .sys_rst                           (sys_rst                   ),
     .uart_txd                          (uart_txd                  ),
-    .trig                              (trig                      ),
+    .received_done                     (received_done             ),
     .Adress                            (Adress                    ),
     .Mod_SEL                           (Mod_SEL                   ),
     .D                                 (D                         ) 
-              );
+);
 
-endmodule
-
+endmodule 

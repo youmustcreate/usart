@@ -3,7 +3,7 @@ module usart_rec
    (
      input                               sys_clk,sys_rst            ,//使能高电平有效，低电平复位
      input                               uart_rxd                   ,
-     output                              trig                       ,
+     output                              received_done              ,//接收完毕给信号到发送模块
      output reg         [23:0]           D                          ,
      output reg         [ 1:0]           Adress                     ,
      output reg         [ 5:0]           Mod_SEL                    ,
@@ -27,15 +27,9 @@ localparam                              RX_NUM = 8'd9              ;
 //传输一个字节所需要的时间 10*(50M/115200)和波特率有关。等于10*BPS_CNT
 localparam                              N = 10*BPS_CNT             ;
 
-  //------------------------------------------------------------------------
-uart_recv   #(.BPS_CNT(BPS_CNT))
-            u_uart_recv(
-    .sys_clk                           (sys_clk                   ),
-    .sys_rst_n                         (sys_rst                   ),
-    .uart_rxd                          (uart_rxd                  ),
-    .rx_byte_done                      (rx_byte_done              ),
-    .rx_data                           (rx_data                   ) //一个字节
-            );
+assign received_done = LET[2];                                               //延迟一个更新脉冲输出
+assign TRP           = LET[6];                                               //数据更新后50ns产生外触发信号，200ns保持时间
+
 
 //------------------------------------------------------------------------
 always @ (posedge sys_clk or negedge sys_rst) begin
@@ -48,9 +42,6 @@ always @ (posedge sys_clk or negedge sys_rst) begin
     LET              <= {LET[6:0],LE};                                    //控制指令检测
   end
 end
-
-assign trig = LET[2];                                               //延迟一个更新脉冲输出
-assign TRP  = LET[6];                                               //数据更新后50ns产生外触发信号，200ns保持时间
 
 
 //------------------------RECEIVE----------------------------------------------
@@ -158,22 +149,24 @@ always @ (posedge sys_clk or negedge sys_rst) begin
   end
 end
 //--------------------外触发信号---------------//
-reg                    [15:0]           up_date                    ;
-always @ (posedge sys_clk or negedge sys_rst)                       //备用
-begin
-  if(!sys_rst) begin
-    up_date <= 0;
-  end
-  else begin
-    up_date <= {up_date[14:0],trig};
-  end
-end
+// reg                    [15:0]           up_date                    ;
+// always @ (posedge sys_clk or negedge sys_rst)                       //备用
+// begin
+//   if(!sys_rst) begin
+//     up_date <= 0;
+//   end
+//   else begin
+//     up_date <= {up_date[14:0],trig};
+//   end
+// end
 
-endmodule
+uart_recv   #(.BPS_CNT(BPS_CNT))
+            u_uart_recv(
+    .sys_clk                           (sys_clk                   ),
+    .sys_rst_n                         (sys_rst                   ),
+    .uart_rxd                          (uart_rxd                  ),
+    .rx_byte_done                      (rx_byte_done              ),
+    .rx_data                           (rx_data                   ) //一个字节
+);
 
-// ! 红色的高亮注释
-// ? 蓝色的高亮注释
-// * 绿色的高亮注释
-// todo 橙色的高亮注释
-// // 灰色带删除线的注释
-// 普通的注释
+endmodule 

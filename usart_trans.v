@@ -3,7 +3,7 @@ module usart_trans
    (
     input                               sys_clk,sys_rst            ,//使能高电平有效，低电平复位
     output                              uart_txd                   ,
-    input                               trig                       ,
+    input                               received_done              ,
     input              [23:0]           D                          ,
     input              [ 1:0]           Adress                     ,
     input              [ 5:0]           Mod_SEL                     
@@ -30,33 +30,23 @@ reg                    [ 7:0]           TRP_REG                    ;
 
 reg                    [15:0]           count                      ;
 reg                    [ 3:0]           state                      ;
-reg                    [ 3:0]           count_flag                 ;//计数方式标志位
+reg                    [ 7:0]           count_flag                 ;//计数方式标志位
 
 assign tx_byte_en    =  tx_byte_en_T;
 assign tx_byte[7:0]  =  tx_byte_T[7:0];
 
-assign TX_REG[1]     =  Adress;
-assign TX_REG[2]     =  Mod_SEL;
+assign TX_REG[1]     =  {6'b0,Adress};
+assign TX_REG[2]     =  {2'b0,Mod_SEL};
 assign TX_REG[3]     =  D[23:16];
 assign TX_REG[4]     =  D[15:8];
 assign TX_REG[5]     =  D[7:0];
-
-
-  uart_send  #(.BPS_CNT(BPS_CNT))
-             u_uart_send(
-    .sys_clk                           (sys_clk                   ),
-    .sys_rst_n                         (sys_rst                   ),
-    .tx_byte_en                        (tx_byte_en                ),
-    .tx_byte                           (tx_byte                   ),
-    .uart_txd                          (uart_txd                  ) 
-             );
 
 //检测数据接收完毕 给出的回传触发信号 trig
   always @ (posedge sys_clk or negedge sys_rst) begin
     if(!sys_rst)
       TRP_REG    <= 8'd0;
     else
-      TRP_REG    <= {TRP_REG[6:0],trig};                            
+      TRP_REG    <= {TRP_REG[6:0],received_done};                            
   end
 
 //--------------------状态切换----------------------------------
@@ -167,5 +157,13 @@ assign TX_REG[5]     =  D[7:0];
     end
   end
 
-endmodule
+uart_send #(.BPS_CNT(BPS_CNT))
+          u_uart_send(
+    .sys_clk                           (sys_clk                   ),
+    .sys_rst_n                         (sys_rst                   ),
+    .tx_byte_en                        (tx_byte_en                ),
+    .tx_byte                           (tx_byte                   ),
+    .uart_txd                          (uart_txd                  ) 
+);
 
+endmodule 
